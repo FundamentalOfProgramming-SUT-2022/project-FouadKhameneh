@@ -1,3 +1,2 @@
-# project-FouadKhameneh
-project-FouadKhameneh created by GitHub Classroom
+# Info
 Fouad Negahban Khameneh - 401170659
