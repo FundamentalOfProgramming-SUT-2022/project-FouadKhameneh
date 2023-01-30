@@ -13,6 +13,13 @@ int main()
     
     while(1)
     {
-        //smth
+        if(strcmp(cmd, "createfile") == 0)
+        {
+
+        }
+        if(strcmp(cmd, "exit") == 0)
+        {
+            break;
+        }
     }
 }
