@@ -11,4 +11,8 @@ int main()
     char cmd[50];
     scanf("%s",cmd);
     
+    while(1)
+    {
+        //smth
+    }
 }
