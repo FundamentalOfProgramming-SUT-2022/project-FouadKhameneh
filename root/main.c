@@ -6,20 +6,45 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
+void invalid_command(void)
+{
+    printf("invalid command!\n");
+}
+
 int main()
 {
     char cmd[50];
     scanf("%s",cmd);
     
-    while(1)
+    while(strcmp(cmd, "exit"))
     {
         if(strcmp(cmd, "createfile") == 0)
         {
             //todo
         }
-        if(strcmp(cmd, "exit") == 0)
+        if(strcmp(cmd, "insert") == 0)
         {
-            break;
+            //todo
+        }
+        if(strcmp(cmd, "cat") == 0)
+        {
+            //todo
+        }
+        if(strcmp(cmd, "remove") == 0)
+        {
+            //todo
+        }
+        if(strcmp(cmd, "copy") == 0)
+        {
+            //todo
+        }
+        if(strcmp(cmd, "cut") == 0)
+        {
+            //todo
+        }
+        if(strcmp(cmd, "paste") == 0)
+        {
+            //todo
         }
     }
 }
