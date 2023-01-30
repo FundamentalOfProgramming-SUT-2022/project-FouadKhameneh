@@ -22,29 +22,33 @@ int main()
         {
             //todo
         }
-        if(strcmp(cmd, "insert") == 0)
+        else if(strcmp(cmd, "insert") == 0)
         {
             //todo
         }
-        if(strcmp(cmd, "cat") == 0)
+        else if(strcmp(cmd, "cat") == 0)
         {
             //todo
         }
-        if(strcmp(cmd, "remove") == 0)
+        else if(strcmp(cmd, "remove") == 0)
         {
             //todo
         }
-        if(strcmp(cmd, "copy") == 0)
+        else if(strcmp(cmd, "copy") == 0)
         {
             //todo
         }
-        if(strcmp(cmd, "cut") == 0)
+        else if(strcmp(cmd, "cut") == 0)
         {
             //todo
         }
-        if(strcmp(cmd, "paste") == 0)
+        else if(strcmp(cmd, "paste") == 0)
         {
             //todo
+        }
+        else
+        {
+            invalid_command();
         }
     }
 }
