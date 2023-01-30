@@ -11,16 +11,22 @@ void invalid_command(void)
     printf("invalid command!\n");
 }
 
+void command_check(char* input, char* cmd);  //splits Command from entire input
+void create_file(char* input);
+
 int main()
 {
-    char cmd[50];
-    scanf("%s",cmd);
-    
-    while(strcmp(cmd, "exit"))
-    {
+    char *cmd = (char *)malloc(25 * sizeof(char));
+    char *input = (char *)malloc(100 * sizeof(char));
+
+    while(true)
+    {      
+        scanf("%[^\n]%*c",input);
+        command_check(input,cmd);
+
         if(strcmp(cmd, "createfile") == 0)
         {
-            //todo
+            create_file(input);
         }
         else if(strcmp(cmd, "insert") == 0)
         {
@@ -46,9 +52,32 @@ int main()
         {
             //todo
         }
+        else if(strcmp(cmd, "exit") == 0)
+        {
+            break;
+        }
         else
         {
             invalid_command();
         }
+
+        scanf("%[^\n]%*c",input);
+        command_check(input,cmd);
     }
+}
+
+void command_check(char* input, char* cmd)
+{   
+    int i = 0;
+
+    while(input[i] != ' ')
+    {
+        cmd[i] = input[i];
+        i++;
+    }
+}
+
+void create_file(char* input)
+{
+    //todo
 }
