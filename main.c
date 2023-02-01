@@ -17,8 +17,7 @@ void address_finder(char* input, char* address);
 
 void create_file(char* address);
 void cat(char* address);
-
-
+void insert_str();
 
 int main()
 {   
@@ -47,9 +46,12 @@ int main()
                 invalid_command();
             }
         }
-        else if(strcmp(cmd, "insert") == 0)
+        else if(strcmp(cmd, "insertstr") == 0)
         {
-            //todo
+            if(strcmp(cmdType, "--file"))
+            {
+
+            }
         }
         else if(strcmp(cmd, "cat") == 0)
         {
@@ -79,7 +81,8 @@ int main()
             //todo
         }
         else if(strcmp(cmd, "exit") == 0)
-        {
+        {   
+            system("clear");
             break;
         }
         else
@@ -182,7 +185,7 @@ void create_file(char* address)
                 }
                 else
                 {
-                    FILE *myfile = fopen("text.txt", "w");
+                    FILE *myfile = fopen(tmp, "w");
                     fclose(myfile);
                 }
             }
@@ -210,13 +213,13 @@ void get_all_char(char* string, FILE *fp)
 
 void cat(char* input)
 {   
-    //Finding path
+    //Finding filename
     int i = 11, j = 0;
-    char path[50];
+    char filename[50];
 
     while(input[i] != '\0' && input[i] != '\n')
     {   
-        path[j] = input[i];
+        filename[j] = input[i];
         j++;
         i++;
     }
@@ -225,7 +228,7 @@ void cat(char* input)
 
     FILE *file;
 
-    if ((file = fopen(path, "r")))
+    if ((file = fopen(filename, "r")))
     {
         char c;
         while((c = getc(file)) != EOF)
@@ -240,3 +243,5 @@ void cat(char* input)
         printf("it Doesn't Exist! \n");
     }
 }
+
+void insert_str();
