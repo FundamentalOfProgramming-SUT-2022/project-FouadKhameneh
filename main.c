@@ -14,10 +14,12 @@
 void invalid_command(void);
 void commandAndTypefinder(char* input, char* cmd, char* cmdType);
 void address_finder(char* input, char* address);
+void goToAddress(char* address);
+void goToRoot(void);
 
 void create_file(char* address);
 void cat(char* address);
-void insert_str();
+void insert_str(char* address);
 
 int main()
 {   
@@ -48,9 +50,13 @@ int main()
         }
         else if(strcmp(cmd, "insertstr") == 0)
         {
-            if(strcmp(cmdType, "--file"))
+            if(strcmp(cmdType, "--file") == 0)
             {
-
+                insert_str(input);
+            }
+            else
+            {
+                invalid_command();
             }
         }
         else if(strcmp(cmd, "cat") == 0)
@@ -147,6 +153,32 @@ void address_finder(char* input, char* address)
     }
 }
 
+void goToAddress(char* address)
+{   
+    char* token;
+    token = strtok(address, "/");
+    while(token != NULL) 
+    {
+        mkdir(token, S_IRWXU);
+        chdir(token);
+        token = strtok(NULL, "/");
+    }   
+}
+
+void goToRoot()
+{   
+    char cwd[MAX_ADDRESS_SIZE];
+    getcwd(cwd, 100);
+    int cwdsize = strlen(cwd);
+    while(cwd[cwdsize - 1] != 't' || cwd[cwdsize- 2 ] != 'o' || cwd[cwdsize - 3] != 'o' || cwd[cwdsize - 4] != 'r' || cwd[cwdsize - 5] != '/')
+    {
+        chdir("..");
+        getcwd(cwd, 100);
+        cwdsize = strlen(cwd);
+    }
+    chdir("..");
+}
+
 void create_file(char* address)
 {   
     const char s[2] = "/";
@@ -202,15 +234,6 @@ void create_file(char* address)
        
 }
 
-void get_all_char(char* string, FILE *fp)
-{
-    char charachter;
-    while((charachter = getc(fp)) != EOF)
-    {
-        string[strlen(string)] = charachter;
-    }
-}
-
 void cat(char* input)
 {   
     //Finding filename
@@ -244,4 +267,26 @@ void cat(char* input)
     }
 }
 
-void insert_str();
+void insert_str(char* input)
+{   
+    int isQtrue = 0;
+    char* s;
+
+    for(int i = 0; input[i] != '\0' && input[i] != '\n'; i++)
+    {   
+        if(input[i] == '"')
+        {   
+            s = &input[i];
+            isQtrue = 1;
+        }
+    }
+
+    if(isQtrue)
+    {   
+        char* token = strtok(input,s);
+    }
+
+    printf("\n%s\n",input);
+    
+ 
+}
