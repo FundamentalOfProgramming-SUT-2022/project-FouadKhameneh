@@ -11,6 +11,8 @@
 #define MAX_CMDTYPE_SIZE 10
 #define MAX_ADDRESS_SIZE 100
 
+char clipboard[1000] = {'\0'};
+
 void invalid_command(void);
 void commandAndTypefinder(char* input, char* cmd, char* cmdType);
 void address_finder(char* input, char* address);
@@ -19,7 +21,9 @@ void goToProjectFile(void);
 
 void create_file(char* address);
 void cat(char* address);
-void insert_str(char* address);
+void insert_str(char* input);
+void remove_str(char* input);
+void tree(char *basePath, const int root);
 
 int main()
 {   
@@ -75,22 +79,35 @@ int main()
                 invalid_command();    
             }
         }
-        else if(strcmp(cmd, "remove") == 0)
+        else if(strcmp(cmd, "removestr") == 0)
         {
-            printf("its not Completed :(\n");
+            if(strcmp(cmdType, "--file") == 0)
+            {
+                remove_str(input);
+            }
+            else
+            {
+                invalid_command();    
+            }
         }
-        else if(strcmp(cmd, "copy") == 0)
+        else if(strcmp(cmd, "copystr") == 0)
         {
-            printf("its not Completed :(\n");
+            printf("\nits not Completed :(\n");
         }
-        else if(strcmp(cmd, "cut") == 0)
+        else if(strcmp(cmd, "cutstr") == 0)
         {
-            printf("its not Completed :(\n");
+            printf("\nits not Completed :(\n");
         }
-        else if(strcmp(cmd, "paste") == 0)
+        else if(strcmp(cmd, "pastestr") == 0)
         {
-            printf("its not Completed :(\n");
+            printf("\nits not Completed :(\n");
         }
+        else if(strcmp(cmd, "tree") == 0)
+        {   
+            printf("\nStarting From './root/dir1' like the instruction said\n");
+            tree("./root/dir1",1);
+        }
+        
         else if(strcmp(cmd, "exit") == 0)
         {   
             system("clear");
@@ -111,7 +128,7 @@ int main()
 
 void invalid_command(void)
 {
-    printf("invalid!\n");
+    printf("\ninvalid!\n");
 }
 
 void commandAndTypefinder(char* input, char* cmd, char* cmdType)
@@ -223,7 +240,7 @@ void create_file(char* address)
                 file = fopen(tmp, "r");
                 if(file != 0)
                 {
-                    printf("This file alredy exists\n");
+                    printf("\nThis file alredy exists\n");
                 }
                 else
                 {
@@ -290,7 +307,7 @@ void cat(char* input)
     }
     else
     {
-        printf("it Doesn't Exist! \n");
+        printf("\nit Doesn't Exist! \n");
     }
 
     goToProjectFile();
@@ -305,7 +322,7 @@ void insert_str(char* input)
     {   
         if(input[i] == '"')
         {   
-            printf("We Dont use \" here! \n");
+            printf("\nWe Dont use \" here! \n");
             return;
         }
     }
@@ -383,9 +400,9 @@ void insert_str(char* input)
 
         tmpint++;
     }
+
     //insertstr --file /root/dir1/text.txt --str AAA --pos 3:5  
     //inputTmp is Array pointer that gives part of input
-    //FileName is The name of Filename ofc
     //address is path
 
     if(strcmp(inputTmp[3],"--str") == 0 && strcmp(inputTmp[5],"--pos") == 0)
@@ -396,7 +413,8 @@ void insert_str(char* input)
         file = fopen(FileName,"r");
         if(file == 0)
         {
-            printf("This file doesn't exist! \n");
+            printf("\nThis file doesn't exist! \n");
+            fclose(file);
             return;
         }
         i = 1, j = 0;
@@ -408,7 +426,7 @@ void insert_str(char* input)
             c = fgetc(file);
             if(c == EOF)
             {
-                printf("invalid Position!\n");
+                printf("\ninvalid Position!\n");
                 fclose(file);
                 return;
             }
@@ -436,11 +454,14 @@ void insert_str(char* input)
             x++;
         }
         fclose(file);
+
+        //Uses W format And Implents
         file = fopen(FileName,"w");
         fprintf(file,"%s%s%s",BeforeString,inputTmp[4],AfterString);
         fclose(file);
+
         goToProjectFile();
-        printf("Successfully inserted the String! \n");
+        printf("\nSuccessfully inserted the String! \n");
         return;
     }
     else
@@ -450,4 +471,173 @@ void insert_str(char* input)
     }
 }
 
+void remove_str(char* input)
+{
+    char s[2] = " ";
+    char s1[2] = "/";
 
+    for(int i = 0; input[i] != '\0' && input[i] != '\n'; i++)
+    {   
+        if(input[i] == '"')
+        {   
+            printf("We Dont use \" here! \n");
+            return;
+        }
+    }
+
+    //Seprating by space and using pointer array to ...
+    char* inputTmp[10];
+    char* token;
+    token = strtok(input,s);
+    int i = 0;
+    while( token != NULL )
+    {   
+        inputTmp[i] = token;
+        token = strtok(NULL, s);
+        i++;
+    }
+
+    char address[50];
+    strcpy(address,inputTmp[2]);
+    char FileName[50];
+
+    i = strlen(address) - 1;
+    int j = 0;
+
+    //This gets Filename
+    while(true)
+    {
+        if(address[i] == '/')
+        {
+            FileName[j] = '\0';
+            break;
+        }
+        FileName[j] = address[i];
+        i--;
+        j++;
+    }
+
+    i = 0;
+    j = strlen(FileName);
+
+    while(i < j)
+    {
+        char tmp = FileName[i];
+        FileName[i] = FileName[j-1];
+        FileName[j-1] = tmp;
+        i++;
+        j--;
+    }
+
+    //position handling
+    int line = 0;
+    int point = 0;
+    int tmpint = 0;
+    int is2NogteTrue = 0;
+
+    while(true)
+    {
+        if(inputTmp[4][tmpint] == '\0' || inputTmp[4][tmpint] == '\n')
+        {
+            break;
+        }
+        else if(inputTmp[4][tmpint] == ':')
+        {
+            is2NogteTrue = 1;
+        }
+        else if(is2NogteTrue == 0)
+        {
+            line *= 10;
+            line += (inputTmp[4][tmpint] - '0');
+        }
+        else if(is2NogteTrue == 1)
+        {
+            point *= 10;
+            point += (inputTmp[4][tmpint] - '0');
+        }
+
+        tmpint++;
+    }
+
+    //insertstr --file /root/dir1/text.txt --str AAA --pos 3:5  
+    //removestr --file /root/dir1/text.txt --pos 2:1 --size 3 --b
+
+    if(strcmp(inputTmp[3],"--pos") == 0 && strcmp(inputTmp[5],"--size") == 0)
+    {
+        goToAddress(inputTmp[2]);
+
+        FILE *file;
+        file = fopen(FileName,"r");
+        if(file == 0)
+        {
+            printf("\nThis file doesn't exist! \n");
+            fclose(file);
+            return;
+        }
+
+        //
+        if(strcmp(inputTmp[7],"--f") == 0)
+        {
+
+        }
+        else if(strcmp(inputTmp[7],"--b") == 0)
+        {
+
+        }
+        else
+        {
+            printf("\nInvalid Type of F/B\n");
+        }
+        //
+
+        goToProjectFile();
+
+    }
+    else
+    {
+        invalid_command();
+        return;
+    }
+
+}
+
+void tree(char *basePath, const int root)
+{
+    int i;
+    char path[1000];
+    struct dirent *dp;
+    DIR *dir = opendir(basePath);
+
+    if (!dir)
+    {
+        printf("\nDir1 Doesn't exist! \n");
+        return;
+    }
+    while ((dp = readdir(dir)) != NULL)
+    {
+        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0)
+        {
+            for (i = 0; i < root; i++) 
+            {
+                if (i % 2 == 0 || i == 0)
+                {
+                    printf("%c", '|');
+                }
+                else
+                {
+                    printf(" ");
+                }
+
+            }
+
+            printf("%c%c%s\n", '|', '-', dp->d_name);
+
+            strcpy(path, basePath);
+            strcat(path, "/");
+            strcat(path, dp->d_name);
+            tree(path, root + 2);
+        }
+    }
+
+    closedir(dir);
+}
