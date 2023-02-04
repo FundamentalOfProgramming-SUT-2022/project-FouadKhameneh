@@ -26,7 +26,7 @@ void remove_str(char* input);
 void copy_str(char* input);
 void cut_str(char* input);
 void paste_str(char* input);
-void tree(char *basePath, const int root);
+void directory_tree(char *basepath, int current_depth, int depth);
 
 int main()
 {   
@@ -127,16 +127,25 @@ int main()
         }
         else if(strcmp(cmd, "tree") == 0)
         {   
-            printf("\nStarting From './root/dir1' like the instruction said\n");
-            tree("./root/dir1",1);
+            //printf("\nStarting From './root/dir1' like the instruction said\n");
+            int depth = 0;
+            for(int i = 5; input[i] != ' ' && input[i] != '\0'; i++)
+            {
+                depth *= 10;
+                depth += (input[i] - '0');
+            }
+            if(input[5] == '-')
+            {
+                depth = 1000;
+            }
+            directory_tree("./root",0, depth);
         }
-        
         else if(strcmp(cmd, "exit") == 0)
         {   
             system("clear");
             break;
         }
-        else if(strcmp(input," ") == 0)
+        else if(strcmp(input," ") == 0 || strcmp(cmd," ") == 0)
         {
             printf("dude wtf\n");
             return 1;
@@ -441,7 +450,7 @@ void insert_str(char* input)
         }
         i = 1, j = 0;
         char c;
-        char BeforeString[10000] = {};
+        char BeforeString[2000] = {};
         int x = 0;
         while (i != line || j != point)
         {
@@ -463,7 +472,7 @@ void insert_str(char* input)
             }
         }
         x = 0;
-        char AfterString[10000];
+        char AfterString[2000];
         while(true)
         {
             c = fgetc(file);
@@ -601,7 +610,7 @@ void remove_str(char* input)
         {
             int i = 1, j = 0;
             char c;
-            char rest[10000] = {};
+            char rest[2000] = {};
             int x = 0;
             while (i != line || j != point)
             {
@@ -654,7 +663,7 @@ void remove_str(char* input)
             //
             int i = 1, j = 0;
             char c;
-            char rest[10000] = {};
+            char rest[2000] = {};
             int x = 0;
             while (i != line || j != point)
             {
@@ -1071,50 +1080,43 @@ void paste_str(char* input)
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void tree(char *basePath, const int root)
+void directory_tree(char *basepath, int current_depth, int depth)
 {
-    int i;
-    char path[1000];
-    struct dirent *dp;
-    DIR *dir = opendir(basePath);
-
-    if (!dir)
+    if (current_depth > depth)
     {
-        printf("\nDir1 Doesn't exist! \n");
         return;
     }
-    while ((dp = readdir(dir)) != NULL)
+    char path[1000];
+    struct dirent *dp;
+    DIR *dir = opendir(basepath);
+    if (!dir)
     {
-        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0)
+        return;
+    }
+    while ((dp = readdir(dir)) != NULL) 
+    {
+        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0) 
         {
-            for (i = 0; i < root; i++) 
+            printf("|");
+            for (int i = 0; i < current_depth; i++) 
             {
-                if (i % 2 == 0 || i == 0)
-                {
-                    printf("%c", '|');
-                }
-                else
-                {
-                    printf(" ");
-                }
-
+                printf("--");
             }
-
-            printf("%c%c%s\n", '|', '-', dp->d_name);
-
-            strcpy(path, basePath);
+            printf("%s\n", dp->d_name);
+            strcpy(path, basepath);
             strcat(path, "/");
             strcat(path, dp->d_name);
-            tree(path, root + 2);
+            directory_tree(path, current_depth + 1, depth);
         }
     }
-
     closedir(dir);
+    return;
 }
 
 
-    //pastestr --file /root/dir1/text.txt --pos 2:5
+
     //insertstr --file /root/dir1/text.txt --str AAA --pos 3:5  
     //removestr --file /root/dir1/text.txt --pos 1:5 --size 3 --f
     //copystr --file /root/dir1/text.txt --pos 2:5 --size 3 --f
     //cutstr --file /root/dir1/text.txt --pos 2:5 --size 3 --f
+    //pastestr --file /root/dir1/text.txt --pos 2:5
