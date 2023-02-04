@@ -127,7 +127,6 @@ int main()
         }
         else if(strcmp(cmd, "tree") == 0)
         {   
-            //printf("\nStarting From './root/dir1' like the instruction said\n");
             int depth = 0;
             for(int i = 5; input[i] != ' ' && input[i] != '\0'; i++)
             {
@@ -298,8 +297,8 @@ void cat(char* input)
 {   
     //Finding address
     int i = 11, j = 0;
-    char address[50];
-    char addressTmp[50];
+    char address[MAX_ADDRESS_SIZE];
+    char addressTmp[MAX_ADDRESS_SIZE];
 
     char s[2] = "/";
 
@@ -371,9 +370,9 @@ void insert_str(char* input)
         i++;
     }
 
-    char address[50];
+    char address[MAX_ADDRESS_SIZE];
     strcpy(address,inputTmp[2]);
-    char FileName[50];
+    char FileName[MAX_ADDRESS_SIZE];
 
     i = strlen(address) - 1;
     int j = 0;
@@ -528,9 +527,9 @@ void remove_str(char* input)
         i++;
     }
 
-    char address[50];
+    char address[MAX_ADDRESS_SIZE];
     strcpy(address,inputTmp[2]);
-    char FileName[50];
+    char FileName[MAX_ADDRESS_SIZE];
 
     i = strlen(address) - 1;
     int j = 0;
@@ -591,7 +590,13 @@ void remove_str(char* input)
     }
 
     //size Handling
-    int sizeFB = *inputTmp[6] - '0';
+    int sizeFB = 0;
+
+    for(int i = 0; inputTmp[6][i] != ' ' && inputTmp[6][i] != '\0'; i++)
+    {
+        sizeFB *= 10;
+        sizeFB += (inputTmp[6][i] - '0');
+    }
 
     if(strcmp(inputTmp[3],"--pos") == 0 && strcmp(inputTmp[5],"--size") == 0)
     {
@@ -807,7 +812,13 @@ void copy_str(char* input)
     }
 
     //size Handling
-    int sizeFB = *inputTmp[6] - '0';
+    int sizeFB = 0;
+
+    for(int i = 0; inputTmp[6][i] != ' ' && inputTmp[6][i] != '\0'; i++)
+    {
+        sizeFB *= 10;
+        sizeFB += (inputTmp[6][i] - '0');
+    }
 
     if(strcmp(inputTmp[3],"--pos") == 0 && strcmp(inputTmp[5],"--size") == 0)
     {
@@ -950,9 +961,9 @@ void paste_str(char* input)
         i++;
     }
 
-    char address[50];
+    char address[MAX_ADDRESS_SIZE];
     strcpy(address,inputTmp[2]);
-    char FileName[50];
+    char FileName[MAX_ADDRESS_SIZE];
 
     i = strlen(address) - 1;
     int j = 0;
@@ -1028,7 +1039,7 @@ void paste_str(char* input)
         }
         i = 1, j = 0;
         char c;
-        char BeforeString[10000] = {};
+        char BeforeString[2000] = {};
         int x = 0;
         while (i != line || j != point)
         {
@@ -1050,7 +1061,7 @@ void paste_str(char* input)
             }
         }
         x = 0;
-        char AfterString[10000];
+        char AfterString[2000];
         while(true)
         {
             c = fgetc(file);
@@ -1086,7 +1097,7 @@ void directory_tree(char *basepath, int current_depth, int depth)
     {
         return;
     }
-    char path[1000];
+    char path[2000];
     struct dirent *dp;
     DIR *dir = opendir(basepath);
     if (!dir)
@@ -1116,7 +1127,7 @@ void directory_tree(char *basepath, int current_depth, int depth)
 
 
     //insertstr --file /root/dir1/text.txt --str AAA --pos 3:5  
-    //removestr --file /root/dir1/text.txt --pos 1:5 --size 3 --f
+    //removestr --file /root/dir1/dir2/dir3/text.txt --pos 1:5 --size 3 --f
     //copystr --file /root/dir1/text.txt --pos 2:5 --size 3 --f
-    //cutstr --file /root/dir1/text.txt --pos 2:5 --size 3 --f
+    //cutstr --file /root/dir1/dir2/dir3/text.txt --pos 2:5 --size 3 --f
     //pastestr --file /root/dir1/text.txt --pos 2:5
