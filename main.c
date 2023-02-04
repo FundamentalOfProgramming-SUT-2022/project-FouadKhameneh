@@ -14,7 +14,7 @@
 void invalid_command(void);
 void commandAndTypefinder(char* input, char* cmd, char* cmdType);
 void address_finder(char* input, char* address);
-void goToAddress(char* address);                                 //Goes to Address
+void goToAddress(char* address);                                 
 void goToProjectFile(void);
 
 void create_file(char* address);
@@ -26,12 +26,15 @@ int main()
     mkdir("root",S_IRWXU);
 
     system("clear");
+    printf("-----------------------------\n");
     printf("-------------VIM-------------\n");
+    printf("-----------------------------\n\n");
     
     char *input = (char *)malloc(MAX_INPUT_SIZE * sizeof(char));
     char *cmd = (char *)malloc(MAX_CMD_SIZE * sizeof(char));
     char *cmdType = (char *)malloc(MAX_CMDTYPE_SIZE * sizeof(char));
     char *address = (char *)malloc(MAX_ADDRESS_SIZE * sizeof(char));
+    char *crash_handler = "c";
 
     while(true)
     {   
@@ -74,24 +77,29 @@ int main()
         }
         else if(strcmp(cmd, "remove") == 0)
         {
-            //todo
+            printf("its not Completed :(\n");
         }
         else if(strcmp(cmd, "copy") == 0)
         {
-            //todo
+            printf("its not Completed :(\n");
         }
         else if(strcmp(cmd, "cut") == 0)
         {
-            //todo
+            printf("its not Completed :(\n");
         }
         else if(strcmp(cmd, "paste") == 0)
         {
-            //todo
+            printf("its not Completed :(\n");
         }
         else if(strcmp(cmd, "exit") == 0)
         {   
             system("clear");
             break;
+        }
+        else if(strcmp(input," ") == 0)
+        {
+            printf("dude wtf\n");
+            return 1;
         }
         else
         {
@@ -326,8 +334,8 @@ void insert_str(char* input)
     {
         if(address[i] == '/')
         {
-            break;
             FileName[j] = '\0';
+            break;
         }
         FileName[j] = address[i];
         i--;
@@ -339,8 +347,8 @@ void insert_str(char* input)
 
     while(i < j)
     {
-        char tmp = FileName[i-1];
-        FileName[i-1] = FileName[j-1];
+        char tmp = FileName[i];
+        FileName[i] = FileName[j-1];
         FileName[j-1] = tmp;
         i++;
         j--;
@@ -375,7 +383,7 @@ void insert_str(char* input)
 
         tmpint++;
     }
-    //insertstr --file /root/dir1/text.txt --str salam --pos 2:5  
+    //insertstr --file /root/dir1/text.txt --str AAA --pos 3:5  
     //inputTmp is Array pointer that gives part of input
     //FileName is The name of Filename ofc
     //address is path
@@ -384,26 +392,29 @@ void insert_str(char* input)
     {   
         goToAddress(inputTmp[2]);
 
-        char stringBefore[100][100];
-        char stringAfter[100][100];
-
         FILE *file;
-        file = fopen("text.txt","r");//FileName 
+        file = fopen(FileName,"r");
+        if(file == 0)
+        {
+            printf("This file doesn't exist! \n");
+            return;
+        }
         i = 1, j = 0;
         char c;
-        char beforestr[10000] = {};
+        char BeforeString[10000] = {};
         int x = 0;
         while (i != line || j != point)
         {
             c = fgetc(file);
             if(c == EOF)
             {
-                printf("This Position Doesn't Exist!\n");
+                printf("invalid Position!\n");
+                fclose(file);
                 return;
             }
             j++;
-            beforestr[x] = c;
-            beforestr[x + 1] = '\0';
+            BeforeString[x] = c;
+            BeforeString[x + 1] = '\0';
             x++;
             if(c == '\n')
             {
@@ -412,7 +423,7 @@ void insert_str(char* input)
             }
         }
         x = 0;
-        char afterstr[10000];
+        char AfterString[10000];
         while(true)
         {
             c = fgetc(file);
@@ -420,15 +431,16 @@ void insert_str(char* input)
             {
                 break;
             }
-            afterstr[x] = c;
-            afterstr[x + 1] = '\0';
+            AfterString[x] = c;
+            AfterString[x + 1] = '\0';
             x++;
         }
         fclose(file);
-        file = fopen("text.txt","w");//Filename
-        fprintf(file,"%s%s%s",beforestr,inputTmp[4],afterstr);
+        file = fopen(FileName,"w");
+        fprintf(file,"%s%s%s",BeforeString,inputTmp[4],AfterString);
         fclose(file);
         goToProjectFile();
+        printf("Successfully inserted the String! \n");
         return;
     }
     else
