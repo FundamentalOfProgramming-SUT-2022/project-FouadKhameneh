@@ -14,8 +14,8 @@
 void invalid_command(void);
 void commandAndTypefinder(char* input, char* cmd, char* cmdType);
 void address_finder(char* input, char* address);
-void goToAddress(char* address);
-void goToRoot(void);
+void goToAddress(char* address);                                 //Goes to Address
+void goToProjectFile(void);
 
 void create_file(char* address);
 void cat(char* address);
@@ -23,16 +23,18 @@ void insert_str(char* address);
 
 int main()
 {   
+    mkdir("root",S_IRWXU);
+
+    system("clear");
+    printf("-------------VIM-------------\n");
+    
     char *input = (char *)malloc(MAX_INPUT_SIZE * sizeof(char));
     char *cmd = (char *)malloc(MAX_CMD_SIZE * sizeof(char));
     char *cmdType = (char *)malloc(MAX_CMDTYPE_SIZE * sizeof(char));
     char *address = (char *)malloc(MAX_ADDRESS_SIZE * sizeof(char));
 
-    system("clear");
-    printf("-------------VIM-------------\n");
-    
     while(true)
-    {      
+    {   
         scanf("%[^\n]%*c",input);  
         commandAndTypefinder(input,cmd,cmdType);
 
@@ -95,12 +97,13 @@ int main()
         {
             invalid_command();
         }
+
     }
 }
 
 void invalid_command(void)
 {
-    printf("invalid command!\n");
+    printf("invalid!\n");
 }
 
 void commandAndTypefinder(char* input, char* cmd, char* cmdType)
@@ -153,19 +156,20 @@ void address_finder(char* input, char* address)
     }
 }
 
-void goToAddress(char* address)
+void goToAddress(char* address)  //Goes to Address
 {   
     char* token;
+    char* FileName;
     token = strtok(address, "/");
     while(token != NULL) 
-    {
-        mkdir(token, S_IRWXU);
+    {   
+        FileName = token;
         chdir(token);
         token = strtok(NULL, "/");
-    }   
+    }
 }
 
-void goToRoot()
+void goToProjectFile()
 {   
     char cwd[MAX_ADDRESS_SIZE];
     getcwd(cwd, 100);
@@ -195,16 +199,14 @@ void create_file(char* address)
         /* walk through other tokens */
         while( token != NULL )
         {   
+            check = mkdir(token,0777);
+            chdir(token);
+            HowManyCdNeeds++;
+            
             char* tmp = token;
             token = strtok(NULL, s);
 
-            if(token != NULL)
-            {
-                check = mkdir(token,0777);
-                chdir(token);
-                HowManyCdNeeds++;
-            }
-            else if(token == NULL)
+            if(token == NULL)
             {   
                 chdir("..");
                 HowManyCdNeeds--;
@@ -213,13 +215,14 @@ void create_file(char* address)
                 file = fopen(tmp, "r");
                 if(file != 0)
                 {
-                    puts("This file alredy exists\n");
+                    printf("This file alredy exists\n");
                 }
                 else
                 {
                     FILE *myfile = fopen(tmp, "w");
                     fclose(myfile);
                 }
+                fclose(file);
             }
         }
         for(int i = 0; i < HowManyCdNeeds; i++)
@@ -236,22 +239,38 @@ void create_file(char* address)
 
 void cat(char* input)
 {   
-    //Finding filename
+    //Finding address
     int i = 11, j = 0;
-    char filename[50];
+    char address[50];
+    char addressTmp[50];
+
+    char s[2] = "/";
 
     while(input[i] != '\0' && input[i] != '\n')
     {   
-        filename[j] = input[i];
+        address[j] = input[i];
+        addressTmp[j] = input[i];
         j++;
         i++;
     }
+    address[j] = '\0';
+    addressTmp[j] = '\0';
 
-    //Check if it exists or not
+    char* addressPointer = address;
+    addressPointer = strtok(addressPointer,s);
+    char* addressPointerOneBack;
+
+    while(addressPointer != NULL) 
+    {   
+        addressPointerOneBack = addressPointer;
+        addressPointer = strtok(NULL, "/");
+    }
+
+    goToAddress(addressTmp);
 
     FILE *file;
 
-    if ((file = fopen(filename, "r")))
+    if ((file = fopen(addressPointerOneBack, "r")))
     {
         char c;
         while((c = getc(file)) != EOF)
@@ -265,28 +284,158 @@ void cat(char* input)
     {
         printf("it Doesn't Exist! \n");
     }
+
+    goToProjectFile();
 }
 
 void insert_str(char* input)
 {   
-    int isQtrue = 0;
-    char* s;
+    char s[2] = " ";
+    char s1[2] = "/";
 
     for(int i = 0; input[i] != '\0' && input[i] != '\n'; i++)
     {   
         if(input[i] == '"')
         {   
-            s = &input[i];
-            isQtrue = 1;
+            printf("We Dont use \" here! \n");
+            return;
         }
     }
 
-    if(isQtrue)
+    //Seprating by space and using pointer array to ...
+    char* inputTmp[10];
+    char* token;
+    token = strtok(input,s);
+    int i = 0;
+    while( token != NULL )
     {   
-        char* token = strtok(input,s);
+        inputTmp[i] = token;
+        token = strtok(NULL, s);
+        i++;
     }
 
-    printf("\n%s\n",input);
-    
- 
+    char address[50];
+    strcpy(address,inputTmp[2]);
+    char FileName[50];
+
+    i = strlen(address) - 1;
+    int j = 0;
+
+    //This gets Filename
+    while(true)
+    {
+        if(address[i] == '/')
+        {
+            break;
+            FileName[j] = '\0';
+        }
+        FileName[j] = address[i];
+        i--;
+        j++;
+    }
+
+    i = 0;
+    j = strlen(FileName);
+
+    while(i < j)
+    {
+        char tmp = FileName[i-1];
+        FileName[i-1] = FileName[j-1];
+        FileName[j-1] = tmp;
+        i++;
+        j--;
+    }
+
+    //position handling
+    int line = 0;
+    int point = 0;
+    int tmpint = 0;
+    int is2NogteTrue = 0;
+
+    while(true)
+    {
+        if(inputTmp[6][tmpint] == '\0' || inputTmp[6][tmpint] == '\n')
+        {
+            break;
+        }
+        else if(inputTmp[6][tmpint] == ':')
+        {
+            is2NogteTrue = 1;
+        }
+        else if(is2NogteTrue == 0)
+        {
+            line *= 10;
+            line += (inputTmp[6][tmpint] - '0');
+        }
+        else if(is2NogteTrue == 1)
+        {
+            point *= 10;
+            point += (inputTmp[6][tmpint] - '0');
+        }
+
+        tmpint++;
+    }
+    //insertstr --file /root/dir1/text.txt --str salam --pos 2:5  
+    //inputTmp is Array pointer that gives part of input
+    //FileName is The name of Filename ofc
+    //address is path
+
+    if(strcmp(inputTmp[3],"--str") == 0 && strcmp(inputTmp[5],"--pos") == 0)
+    {   
+        goToAddress(inputTmp[2]);
+
+        char stringBefore[100][100];
+        char stringAfter[100][100];
+
+        FILE *file;
+        file = fopen("text.txt","r");//FileName 
+        i = 1, j = 0;
+        char c;
+        char beforestr[10000] = {};
+        int x = 0;
+        while (i != line || j != point)
+        {
+            c = fgetc(file);
+            if(c == EOF)
+            {
+                printf("This Position Doesn't Exist!\n");
+                return;
+            }
+            j++;
+            beforestr[x] = c;
+            beforestr[x + 1] = '\0';
+            x++;
+            if(c == '\n')
+            {
+                i++;
+                j = 0;
+            }
+        }
+        x = 0;
+        char afterstr[10000];
+        while(true)
+        {
+            c = fgetc(file);
+            if(c == EOF)
+            {
+                break;
+            }
+            afterstr[x] = c;
+            afterstr[x + 1] = '\0';
+            x++;
+        }
+        fclose(file);
+        file = fopen("text.txt","w");//Filename
+        fprintf(file,"%s%s%s",beforestr,inputTmp[4],afterstr);
+        fclose(file);
+        goToProjectFile();
+        return;
+    }
+    else
+    {
+        invalid_command();
+        return;
+    }
 }
+
+
